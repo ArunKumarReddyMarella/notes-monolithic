@@ -27,7 +27,15 @@ public class User {
 	
 	private String password;
 
-	@OneToMany(cascade = CascadeType.ALL)
+//	@OneToMany(cascade = CascadeType.ALL)
+//	private List<Role> roles;
+
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "roles_id"))
 	private List<Role> roles;
+
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "account_status_id")
+	private AccountStatus accountStatus;
 
 }
