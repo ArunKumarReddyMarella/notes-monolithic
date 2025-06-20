@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title}">Account Confirmation - Enotes</title>
+    <style type="text/css">
+        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        img { -ms-interpolation-mode: bicubic; }
+        /* Reset Styles */
+        body { margin: 0; padding: 0; }
+        table { border-collapse: collapse !important; }
+        td { padding: 0; }
+        a { text-decoration: none; }
+        .ExternalClass { width: 100%; }
+        .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div { line-height: 100%; }
+        .apple-link a { color: inherit !important; text-decoration: none !important; }
+        .btn-primary:hover {
+            background-color: #0b5ed7 !important;
+            border-color: #0a58ca !important;
+        }
+        /* Your Custom Styles */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f4f4f4; /* Light grey background for the entire email */
+            margin: 0;
+            padding: 0;
+        }
+        .email-wrapper {
+            background-color: #f4f4f4;
+            padding: 20px 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto; /* Center the container */
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Slightly softer shadow */
+            border: 1px solid #e0e0e0; /* Subtle border */
+        }
+        .header h1 {
+            color: #1a237e; /* Dark blue heading */
+            font-size: 28px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .header p, .body-content p {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        .action {
+            text-align: center; /* Center the button */
+            margin: 30px 0; /* More space around the button */
+        }
+        .btn-primary {
+            background-color: #0d6efd; /* Your original blue */
+            border: 1px solid #0d6efd; /* Solid border matching color */
+            color: #ffffff; /* White text */
+            padding: 14px 28px; /* Slightly larger padding for bigger button */
+            border-radius: 6px; /* Slightly more rounded corners */
+            text-decoration: none;
+            display: inline-block;
+            font-size: 18px; /* Larger font size for button text */
+            font-weight: bold; /* Make button text bold */
+            transition: background-color 0.3s ease; /* Smooth hover effect */
+        }
+        .footer {
+            margin-top: 40px; /* More space above footer */
+            padding-top: 20px;
+            border-top: 1px solid #eeeeee; /* Separator line */
+            font-size: 14px;
+            color: #777777; /* Lighter grey for footer text */
+            text-align: center;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .footer a {
+            color: #0d6efd; /* Blue link in footer */
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="email-wrapper">
+    <div class="email-container">
+        <div class="header">
+            <h1 th:text="${title}">Account Confirmation</h1>
+            <p>Hi <span th:text="${userName}">ArunReddy</span>, welcome to Enotes!</p>
+            <p th:text="${message}">Your account has been successfully created. Please verify your email address to get started.</p>
+        </div>
+
+        <div class="action">
+            <a th:href="${verificationLink}" class="btn-primary" target="_blank">Verify Account</a>
+        </div>
+
+        <div class="footer">
+            <p>Thanks,</p>
+            <p>Team Enotes</p>
+            <p>Need help? <a href="mailto:support@enotes.com">Contact Support</a></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

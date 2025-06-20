@@ -58,4 +58,8 @@ public class GlobalExceptionHandler {
 		return CommonUtil.createErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 	}
 
+	@ExceptionHandler(EmailException.class)
+	public ResponseEntity<?> handleEmailException(EmailException e) {
+		return CommonUtil.createErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
+	}
 }

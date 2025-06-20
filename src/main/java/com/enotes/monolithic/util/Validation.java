@@ -3,6 +3,7 @@ package com.enotes.monolithic.util;
 import com.enotes.monolithic.dto.CategoryDto;
 import com.enotes.monolithic.dto.TodoDto;
 import com.enotes.monolithic.dto.UserDto;
+import com.enotes.monolithic.entity.User;
 import com.enotes.monolithic.enums.TodoStatus;
 import com.enotes.monolithic.exception.ExistDataException;
 import com.enotes.monolithic.exception.ResourceNotFoundException;
@@ -122,4 +123,21 @@ public class Validation {
 
     }
 
+    public void emailValidation(String toEmail) {
+
+        if (!StringUtils.hasText(toEmail) || !toEmail.matches(Constants.EMAIL_REGEX)) {
+            throw new IllegalArgumentException("email is invalid");
+        }
+    }
+
+    public void verificationCodeValidation(User user, String verificationCode) {
+
+        if (Boolean.TRUE.equals(user.getAccountStatus().getIsActive()) || user.getAccountStatus().getVerificationCode() == null) {
+            throw new IllegalArgumentException("User already verified");
+        }
+
+        if (!StringUtils.hasText(verificationCode) || !user.getAccountStatus().getVerificationCode().equals(verificationCode)) {
+            throw new IllegalArgumentException("Verification code is invalid");
+        }
+    }
 }
