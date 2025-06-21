@@ -3,25 +3,21 @@ package com.enotes.monolithic.service.impl;
 import com.enotes.monolithic.dto.EmailRequest;
 import com.enotes.monolithic.entity.User;
 import com.enotes.monolithic.exception.EmailException;
-import jakarta.mail.MessagingException;
+import com.enotes.monolithic.service.EmailService;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
-
-import java.io.UnsupportedEncodingException;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class EmailService {
+public class EmailServiceImpl implements EmailService {
     
     private final JavaMailSender javaMailSender;
     private final TemplateEngine templateEngine;
@@ -29,6 +25,7 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
+    @Override
     public void sendEmail(User user, EmailRequest emailRequest, String url) {
         try {
             Context context = new Context();

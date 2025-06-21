@@ -1,6 +1,9 @@
 package com.enotes.monolithic.service.impl;
 
+import com.enotes.monolithic.config.security.CustomUserDetails;
 import com.enotes.monolithic.dto.EmailRequest;
+import com.enotes.monolithic.dto.LoginRequest;
+import com.enotes.monolithic.dto.LoginResponse;
 import com.enotes.monolithic.dto.UserDto;
 import com.enotes.monolithic.entity.AccountStatus;
 import com.enotes.monolithic.entity.Role;
@@ -8,11 +11,15 @@ import com.enotes.monolithic.entity.User;
 import com.enotes.monolithic.exception.ResourceNotFoundException;
 import com.enotes.monolithic.repository.RoleRepository;
 import com.enotes.monolithic.repository.UserRepository;
+import com.enotes.monolithic.service.EmailService;
 import com.enotes.monolithic.service.UserService;
-
 import com.enotes.monolithic.util.Validation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -37,6 +44,12 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
     @Override
     public Boolean register(UserDto userDto, String url) {
 
@@ -46,6 +59,7 @@ public class UserServiceImpl implements UserService {
         setRole(userDto, user);
         setDefaultAccountStatus(user);
 
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = userRepo.save(user);
         if (!ObjectUtils.isEmpty(savedUser)) {
             sendRegistrationEmail(savedUser, url);
@@ -59,10 +73,23 @@ public class UserServiceImpl implements UserService {
         User user = userRepo.findById(Integer.parseInt(userId))
                 .orElseThrow(() -> new ResourceNotFoundException("User Not found & Id invalid"));
 
-        validation.verificationCodeValidation(user,verificationCode);
+        validation.verificationCodeValidation(user, verificationCode);
 
         setVerifiedAccountStatus(user);
         userRepo.save(user);
+    }
+
+    @Override
+    public LoginResponse login(LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+        if (authentication.isAuthenticated()) {
+            CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+            return LoginResponse.builder()
+                    .token("token")
+                    .user(mapper.map(customUserDetails.getUser(), UserDto.class))
+                    .build();
+        }
+        return null;
     }
 
     private void setVerifiedAccountStatus(User user) {
