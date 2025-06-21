@@ -12,6 +12,7 @@ import com.enotes.monolithic.exception.ResourceNotFoundException;
 import com.enotes.monolithic.repository.RoleRepository;
 import com.enotes.monolithic.repository.UserRepository;
 import com.enotes.monolithic.service.EmailService;
+import com.enotes.monolithic.service.JWTService;
 import com.enotes.monolithic.service.UserService;
 import com.enotes.monolithic.util.Validation;
 import org.modelmapper.ModelMapper;
@@ -50,6 +51,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private JWTService jwtService;
+
     @Override
     public Boolean register(UserDto userDto, String url) {
 
@@ -84,8 +88,9 @@ public class UserServiceImpl implements UserService {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
         if (authentication.isAuthenticated()) {
             CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+            String token = jwtService.generateToken(customUserDetails.getUser());
             return LoginResponse.builder()
-                    .token("token")
+                    .token(token)
                     .user(mapper.map(customUserDetails.getUser(), UserDto.class))
                     .build();
         }
