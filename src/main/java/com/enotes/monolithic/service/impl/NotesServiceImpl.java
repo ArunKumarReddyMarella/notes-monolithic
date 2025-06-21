@@ -14,6 +14,7 @@ import com.enotes.monolithic.repository.FileRepository;
 import com.enotes.monolithic.repository.FavouriteNoteRepository;
 import com.enotes.monolithic.repository.NotesRepository;
 import com.enotes.monolithic.service.NotesService;
+import com.enotes.monolithic.util.CommonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
@@ -184,7 +185,8 @@ public class NotesServiceImpl implements NotesService {
 	}
 
 	@Override
-	public NotesResponse getAllNotesByUser(Integer userId, Integer pageNo, Integer pageSize) {
+	public NotesResponse getAllNotesByUser(Integer pageNo, Integer pageSize) {
+		Integer userId = CommonUtil.getLoggedInUser().getId();
 		// 10 = 5,5 = 2 pages
 		Pageable pageable = PageRequest.of(pageNo, pageSize);
 		Page<Notes> pageNotes = notesRepo.findByCreatedByAndIsDeletedFalse(userId, pageable);
@@ -219,7 +221,8 @@ public class NotesServiceImpl implements NotesService {
 	}
 
 	@Override
-	public List<NotesDto> getUserRecycleBinNotes(Integer userId) {
+	public List<NotesDto> getUserRecycleBinNotes() {
+		Integer userId = CommonUtil.getLoggedInUser().getId();
 		List<Notes> recycleNotes = notesRepo.findByCreatedByAndIsDeletedTrue(userId);
 		List<NotesDto> notesDtoList = recycleNotes.stream().map(note -> mapper.map(note, NotesDto.class)).toList();
 		return notesDtoList;
@@ -236,7 +239,8 @@ public class NotesServiceImpl implements NotesService {
 	}
 
 	@Override
-	public void emptyRecycleBin(int userId) {
+	public void emptyRecycleBin() {
+		Integer userId = CommonUtil.getLoggedInUser().getId();
 		List<Notes> recycleNotes = notesRepo.findByCreatedByAndIsDeletedTrue(userId);
 		if (!CollectionUtils.isEmpty(recycleNotes)) {
 			notesRepo.deleteAllInBatch(recycleNotes);
@@ -261,7 +265,7 @@ public class NotesServiceImpl implements NotesService {
 
 	@Override
 	public List<FavouriteNoteDto> getUserFavoriteNotes() throws Exception {
-		int userId = 2;
+		Integer userId = CommonUtil.getLoggedInUser().getId();
 		List<FavouriteNote> favouriteNotes = favouriteNoteRepo.findByUserId(userId);
 		return favouriteNotes.stream().map(fn -> mapper.map(fn, FavouriteNoteDto.class)).toList();
 	}
@@ -270,9 +274,6 @@ public class NotesServiceImpl implements NotesService {
 	public Boolean copyNotes(Integer id) throws Exception {
 		Notes notes = notesRepo.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Notes id invalid ! Not Found"));
-
-//		Notes copyNote=new Notes();
-//		copyNote.setTitle(notes.getTitle());
 
 		Notes copyNote = Notes.builder().title(notes.getTitle()).description(notes.getDescription())
 				.category(notes.getCategory()).isDeleted(false).fileDetails(null).build();

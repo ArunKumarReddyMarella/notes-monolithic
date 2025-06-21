@@ -4,7 +4,7 @@ import com.enotes.monolithic.config.security.CustomUserDetails;
 import com.enotes.monolithic.dto.EmailRequest;
 import com.enotes.monolithic.dto.LoginRequest;
 import com.enotes.monolithic.dto.LoginResponse;
-import com.enotes.monolithic.dto.UserDto;
+import com.enotes.monolithic.dto.UserRequest;
 import com.enotes.monolithic.entity.AccountStatus;
 import com.enotes.monolithic.entity.Role;
 import com.enotes.monolithic.entity.User;
@@ -55,12 +55,12 @@ public class UserServiceImpl implements UserService {
     private JWTService jwtService;
 
     @Override
-    public Boolean register(UserDto userDto, String url) {
+    public Boolean register(UserRequest userRequest, String url) {
 
-        validation.userValidation(userDto);
-        User user = mapper.map(userDto, User.class);
+        validation.userValidation(userRequest);
+        User user = mapper.map(userRequest, User.class);
 
-        setRole(userDto, user);
+        setRole(userRequest, user);
         setDefaultAccountStatus(user);
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
             String token = jwtService.generateToken(customUserDetails.getUser());
             return LoginResponse.builder()
                     .token(token)
-                    .user(mapper.map(customUserDetails.getUser(), UserDto.class))
+                    .user(mapper.map(customUserDetails.getUser(), UserRequest.class))
                     .build();
         }
         return null;
@@ -110,8 +110,8 @@ public class UserServiceImpl implements UserService {
         user.setAccountStatus(accountStatus);
     }
 
-    private void setRole(UserDto userDto, User user) {
-        List<Integer> reqRoleId = userDto.getRoles().stream().map(UserDto.RoleDto::getId).toList();
+    private void setRole(UserRequest userRequest, User user) {
+        List<Integer> reqRoleId = userRequest.getRoles().stream().map(UserRequest.RoleDto::getId).toList();
         List<Role> roles = roleRepo.findAllById(reqRoleId);
         user.setRoles(roles);
     }

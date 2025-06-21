@@ -6,6 +6,7 @@ import com.enotes.monolithic.enums.TodoStatus;
 import com.enotes.monolithic.exception.ResourceNotFoundException;
 import com.enotes.monolithic.repository.TodoRepository;
 import com.enotes.monolithic.service.TodoService;
+import com.enotes.monolithic.util.CommonUtil;
 import com.enotes.monolithic.util.Validation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +68,7 @@ public class TodoServiceImpl implements TodoService {
 
 	@Override
 	public List<TodoDto> getTodoByUser() {
-		Integer userId = 2;
+		Integer userId = CommonUtil.getLoggedInUser().getId();
 		List<Todo> todos = todoRepo.findByCreatedBy(userId);
 		return todos.stream().map(td -> mapper.map(td, TodoDto.class)).toList();
 	}

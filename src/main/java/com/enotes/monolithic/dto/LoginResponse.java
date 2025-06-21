@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @Builder
 public class LoginResponse {
-    private UserDto user;
+    private UserRequest user;
     private String token;
 }

@@ -1,10 +1,13 @@
 package com.enotes.monolithic.util;
 
+import com.enotes.monolithic.config.security.CustomUserDetails;
+import com.enotes.monolithic.entity.User;
 import com.enotes.monolithic.handler.GenericResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 public class CommonUtil {
 
@@ -65,6 +68,11 @@ public class CommonUtil {
         String apiUrl = request.getRequestURL().toString(); // http:localhost:8080/api/v1/auth
         apiUrl = apiUrl.replace(request.getServletPath(), ""); // http:localhost:8080
         return apiUrl;
+    }
+
+    public static User getLoggedInUser() {
+        CustomUserDetails loggedInUser = (CustomUserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return loggedInUser.getUser();
     }
 
 }

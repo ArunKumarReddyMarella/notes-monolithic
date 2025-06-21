@@ -29,6 +29,7 @@ public class User {
 
 //	@OneToMany(cascade = CascadeType.ALL)
 //	private List<Role> roles;
+	// one to many is causing issue while saving as same role is getting saved multiple times
 
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "roles_id"))

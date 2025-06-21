@@ -2,7 +2,7 @@ package com.enotes.monolithic.controller;
 
 import com.enotes.monolithic.dto.LoginRequest;
 import com.enotes.monolithic.dto.LoginResponse;
-import com.enotes.monolithic.dto.UserDto;
+import com.enotes.monolithic.dto.UserRequest;
 import com.enotes.monolithic.service.UserService;
 import com.enotes.monolithic.util.CommonUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,9 +21,9 @@ public class AuthControllerV1 {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> registerUser(@RequestBody UserRequest userRequest, HttpServletRequest request) throws Exception {
         String url = CommonUtil.getUrl(request);
-        Boolean register = userService.register(userDto, url);
+        Boolean register = userService.register(userRequest, url);
         if (Boolean.TRUE.equals(register)) {
             return CommonUtil.createBuildResponseMessage("Registration success", HttpStatus.CREATED);
         }

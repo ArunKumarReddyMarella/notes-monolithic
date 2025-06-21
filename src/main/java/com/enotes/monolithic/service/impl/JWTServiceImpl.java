@@ -2,8 +2,11 @@ package com.enotes.monolithic.service.impl;
 
 import com.enotes.monolithic.entity.Role;
 import com.enotes.monolithic.entity.User;
+import com.enotes.monolithic.exception.JwtTokenExpiredException;
 import com.enotes.monolithic.service.JWTService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -24,8 +27,6 @@ public class JWTServiceImpl implements JWTService {
 
     private String SECRET_KEY = "DefaultSecretKey";
 
-    private long EXPIRATION_TIME = 10 * 60 * 60 * 60; // 10 hours
-
     public JWTServiceImpl() {
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance("HmacSHA256");
@@ -41,12 +42,14 @@ public class JWTServiceImpl implements JWTService {
     public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
 
+        claims.put("id", user.getId());
         claims.put("firstName", user.getFirstName());
         claims.put("lastName", user.getLastName());
         claims.put("email", user.getEmail());
         claims.put("roles", user.getRoles().stream().map(Role::getName).toList());
         claims.put("AccountStatus", user.getAccountStatus().getIsActive());
 
+        long EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 1 day
         return Jwts.builder()
                 .claims().add(claims)
                 .subject(user.getEmail())
@@ -70,9 +73,19 @@ public class JWTServiceImpl implements JWTService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(decryptKey(SECRET_KEY)).build()
-                .parseSignedClaims(token).getPayload();
+        try {
+            return Jwts.parser()
+                    .verifyWith(decryptKey(SECRET_KEY)).build()
+                    .parseSignedClaims(token).getPayload();
+        } catch (ExpiredJwtException e) {
+            throw new JwtTokenExpiredException("Token Expired");
+        }
+        catch (JwtException e) {
+            throw new JwtTokenExpiredException("Invalid Token");
+        }
+        catch (Exception e) {
+            throw e;
+        }
     }
 
     private SecretKey decryptKey(String secretKey) {
