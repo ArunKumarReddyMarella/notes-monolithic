@@ -8,6 +8,8 @@ public interface JWTService {
 
     public String extractUsername(String token);
 
+    public Boolean extractAccountStatus(String token);
+
     public String extractRole(String token);
 
     public boolean validateToken(String token, UserDetails userDetails);

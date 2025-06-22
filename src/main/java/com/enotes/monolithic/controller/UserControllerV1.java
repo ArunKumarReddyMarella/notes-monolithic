@@ -30,7 +30,7 @@ public class UserControllerV1 {
 
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody PasswordChngRequest passwordChngRequest) {
-        userService.changePassword(passwordChngRequest);
+        userService.resetPassword(passwordChngRequest);
         return CommonUtil.createBuildResponseMessage("Password changed successfully", HttpStatus.OK);
     }
 

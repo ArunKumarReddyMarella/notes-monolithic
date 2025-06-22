@@ -123,6 +123,6 @@ public class AuthServiceImpl implements AuthService {
                 .message("Hi " + user.getFirstName() + ", welcome to Enotes!")
                 .build();
 
-        emailService.sendEmail(user, emailRequest, url);
+        emailService.sendRegistrationEmail(user, emailRequest, url);
     }
 }

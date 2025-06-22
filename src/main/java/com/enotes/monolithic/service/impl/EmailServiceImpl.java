@@ -26,15 +26,15 @@ public class EmailServiceImpl implements EmailService {
     private String fromEmail;
 
     @Override
-    public void sendEmail(User user, EmailRequest emailRequest, String url) {
+    public void sendRegistrationEmail(User user, EmailRequest emailRequest, String baseUrl) {
         try {
             Context context = new Context();
             context.setVariable("title", emailRequest.getTitle());
             context.setVariable("message", emailRequest.getMessage());
-            context.setVariable("verificationLink", url + "/api/v1/user/verify-account?userId=" + user.getId() + "&verificationCode=" + user.getAccountStatus().getVerificationCode());
+            context.setVariable("verificationLink", baseUrl + "/api/v1/auth/user/verify-account?userId=" + user.getId() + "&verificationCode=" + user.getAccountStatus().getVerificationCode()); // Replace with your verification link logicurl + "/api/v1/auth/user/verify-account?userId=" + user.getId() + "&verificationCode=" + user.getAccountStatus().getVerificationCode());
 
             // Process the template
-            String htmlContent = templateEngine.process("email", context);
+            String htmlContent = templateEngine.process("account-verification-email", context);
 
             // Create and send email
             MimeMessage message = javaMailSender.createMimeMessage();
@@ -49,6 +49,34 @@ public class EmailServiceImpl implements EmailService {
             log.info("Email sent successfully to: {}", emailRequest.getTo());
         } catch (Exception e) {
             log.error("Failed to send email to: {}", emailRequest.getTo(), e);
+            throw new EmailException("Failed to send email: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void sendResetPasswordEmail(User user, String baseUrl) {
+        try {
+            Context context = new Context();
+            context.setVariable("uid", user.getId());
+            context.setVariable("firstName", user.getFirstName());
+            context.setVariable("resetLink", baseUrl + "/api/v1/auth/user/verify-reset-password-code?userId=" + user.getId() + "&code=" + user.getAccountStatus().getResetPasswordCode());
+
+            // Process the template
+            String htmlContent = templateEngine.process("email-reset-password", context);
+
+            // Create and send email
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setFrom(fromEmail);
+            helper.setTo(user.getEmail());
+            helper.setSubject("Reset Password");
+            helper.setText(htmlContent, true);
+
+            javaMailSender.send(message);
+            log.info("Email sent successfully to: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Failed to send email to: {}", user.getEmail(), e);
             throw new EmailException("Failed to send email: " + e.getMessage());
         }
     }

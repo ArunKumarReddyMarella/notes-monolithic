@@ -67,6 +67,12 @@ public class JWTServiceImpl implements JWTService {
     }
 
     @Override
+    public Boolean extractAccountStatus(String token) {
+        Claims claims = extractAllClaims(token);
+        return (Boolean)claims.get("AccountStatus");
+    }
+
+    @Override
     public String extractRole(String token) {
         Claims claims = extractAllClaims(token);
         return claims.get("roles").toString();
@@ -97,7 +103,7 @@ public class JWTServiceImpl implements JWTService {
     public boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         Boolean isExpired = isTokenExpired(token);
-        return (username.equals(userDetails.getUsername()) && !isExpired);
+        return (username.equals(userDetails.getUsername()) && !isExpired && extractAccountStatus(token));
     }
 
     private Key getSecretKey() {

@@ -3,6 +3,7 @@ package com.enotes.monolithic.config.security;
 import com.enotes.monolithic.handler.GenericResponse;
 import com.enotes.monolithic.service.JWTService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,6 +50,9 @@ public class JWTFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                }
+                else{
+                    throw new JwtException("Invalid Token or Token Expired or Account Disabled");
                 }
             }
         } catch (Exception e) {
