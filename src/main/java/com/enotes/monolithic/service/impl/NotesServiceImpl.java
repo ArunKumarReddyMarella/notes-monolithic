@@ -286,4 +286,20 @@ public class NotesServiceImpl implements NotesService {
 		return false;
 	}
 
+	@Override
+	public NotesResponse getNotesByUserSearchNotes(String keyword, Integer pageNo, Integer pageSize) throws Exception {
+		Integer userId = CommonUtil.getLoggedInUser().getId();
+		Page<Notes> notes = notesRepo.searchNotes(keyword, userId, PageRequest.of(pageNo, pageSize));
+
+		List<NotesDto> notesDtos = notes.stream().map(n -> mapper.map(n, NotesDto.class)).toList();
+
+		return NotesResponse.builder().notes(notesDtos)
+				.pageNo(notes.getNumber()).pageSize(notes.getSize())
+				.totalElements(notes.getTotalElements())
+				.totalPages(notes.getTotalPages())
+				.isFirst(notes.isFirst())
+				.isLast(notes.isLast())
+				.build();
+	}
+
 }

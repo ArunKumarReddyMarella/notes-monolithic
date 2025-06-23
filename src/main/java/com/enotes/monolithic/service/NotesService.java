@@ -38,4 +38,5 @@ public interface NotesService {
 
 	public Boolean copyNotes(Integer id) throws Exception;
 
+    public NotesResponse getNotesByUserSearchNotes(String keyword, Integer pageNo, Integer pageSize) throws Exception;
 }
