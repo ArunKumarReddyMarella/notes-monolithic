@@ -18,6 +18,8 @@ import com.enotes.monolithic.util.CommonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -42,6 +44,7 @@ import java.util.UUID;
 
 @Service
 public class NotesServiceImpl implements NotesService {
+	private static final Logger logger = LoggerFactory.getLogger(NotesServiceImpl.class);
 
 	@Autowired
 	private NotesRepository notesRepo;
@@ -106,7 +109,7 @@ public class NotesServiceImpl implements NotesService {
 		if (ObjectUtils.isEmpty(file)) {
 			notesDto.setFileDetails(mapper.map(existNotes.getFileDetails(), NotesDto.FilesDto.class));
 		}
-
+		logger.info("update notesDto with file details : {}", notesDto);
 	}
 
 	private FileDetails saveFileDetails(MultipartFile file) throws IOException {
@@ -127,12 +130,14 @@ public class NotesServiceImpl implements NotesService {
 			File saveFile = new File(uploadpath);
 			if (!saveFile.exists()) {
 				saveFile.mkdir();
+				logger.info("directory created");
 			}
-			// path : enotesapiservice/notes/java.pdf
+			// path : enotes-monolithic/notes/java.pdf
 			String storePath = uploadpath.concat(uploadfileName);
 
 			// upload file
 			long upload = Files.copy(file.getInputStream(), Paths.get(storePath));
+			logger.info("file uploaded successfully");
 			if (upload != 0) {
 				FileDetails fileDtls = new FileDetails();
 				fileDtls.setOriginalFileName(originalFilename);
@@ -141,10 +146,10 @@ public class NotesServiceImpl implements NotesService {
 				fileDtls.setFileSize(file.getSize());
 				fileDtls.setPath(storePath);
 				FileDetails saveFileDtls = fileRepo.save(fileDtls);
+				logger.info("file saved successfully {}", saveFileDtls);
 				return saveFileDtls;
 			}
 		}
-
 		return null;
 	}
 
@@ -208,6 +213,7 @@ public class NotesServiceImpl implements NotesService {
 		notes.setIsDeleted(true);
 		notes.setDeletedOn(LocalDateTime.now());
 		notesRepo.save(notes);
+		logger.warn("Notes deleted successfully of id : {}", id);
 	}
 
 	@Override
@@ -233,6 +239,7 @@ public class NotesServiceImpl implements NotesService {
 		Notes notes = notesRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Notes not found"));
 		if (notes.getIsDeleted()) {
 			notesRepo.delete(notes);
+			logger.warn("Notes hard deleted successfully of id : {}", id);
 		} else {
 			throw new IllegalArgumentException("Sorry You cant hard delete Directly");
 		}
@@ -244,6 +251,7 @@ public class NotesServiceImpl implements NotesService {
 		List<Notes> recycleNotes = notesRepo.findByCreatedByAndIsDeletedTrue(userId);
 		if (!CollectionUtils.isEmpty(recycleNotes)) {
 			notesRepo.deleteAllInBatch(recycleNotes);
+			logger.warn("Recycle Bin deleted successfully of user id : {}", userId);
 		}
 	}
 
@@ -261,6 +269,7 @@ public class NotesServiceImpl implements NotesService {
 		FavouriteNote favNote = favouriteNoteRepo.findById(favouriteNoteId)
 				.orElseThrow(() -> new ResourceNotFoundException("Favourite Note Not found & Id invalid"));
 		favouriteNoteRepo.delete(favNote);
+		logger.warn("Favourite Note deleted successfully of id : {}", favouriteNoteId);
 	}
 
 	@Override

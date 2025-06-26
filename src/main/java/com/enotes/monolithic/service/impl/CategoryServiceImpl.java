@@ -9,16 +9,18 @@ import com.enotes.monolithic.repository.CategoryRepository;
 import com.enotes.monolithic.service.CategoryService;
 import com.enotes.monolithic.util.Validation;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
+    private static final Logger logger = LoggerFactory.getLogger(CategoryServiceImpl.class);
 
     @Autowired
     private CategoryRepository categoryRepo;
@@ -64,19 +66,19 @@ public class CategoryServiceImpl implements CategoryService {
             category.setCreatedBy(existCategory.getCreatedBy());
             category.setCreatedOn(existCategory.getCreatedOn());
             category.setIsDeleted(existCategory.getIsDeleted());
+            logger.info("Category updated successfully : {}", category);
         }
+
     }
 
     @Override
     public List<CategoryDto> getAllCategory() {
         List<Category> categories = categoryRepo.findAll();
-
         return categories.stream().map(cat -> mapper.map(cat, CategoryDto.class)).toList();
     }
 
     @Override
     public List<CategoryResponse> getActiveCategory() {
-
         List<Category> categories = categoryRepo.findByIsActiveTrueAndIsDeletedFalse();
         return categories.stream().map(cat -> mapper.map(cat, CategoryResponse.class))
                 .toList();

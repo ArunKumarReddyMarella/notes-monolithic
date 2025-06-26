@@ -10,6 +10,8 @@ import com.enotes.monolithic.exception.ResourceNotFoundException;
 import com.enotes.monolithic.exception.ValidationException;
 import com.enotes.monolithic.repository.RoleRepository;
 import com.enotes.monolithic.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -22,6 +24,7 @@ import java.util.Map;
 
 @Component
 public class Validation {
+    private static final Logger logger = LoggerFactory.getLogger(Validation.class);
 
     @Autowired
     private RoleRepository roleRepo;
@@ -67,7 +70,7 @@ public class Validation {
         if (!error.isEmpty()) {
             throw new ValidationException(error);
         }
-
+        logger.info("category validation success : {}", categoryDto);
     }
 
     public void todoValidation(TodoDto todo) throws Exception {
@@ -81,6 +84,7 @@ public class Validation {
         if (!statusFound) {
             throw new ResourceNotFoundException("invalid status");
         }
+        logger.info("todo validation success : {}", todo);
     }
 
     public void userValidation(UserRequest userRequest) {
@@ -120,7 +124,7 @@ public class Validation {
                 throw new IllegalArgumentException("role is invalid" + invalidReqRoleids);
             }
         }
-
+        logger.info("user validation success : {}", userRequest);
     }
 
     public void emailValidation(String toEmail) {
@@ -128,6 +132,7 @@ public class Validation {
         if (!StringUtils.hasText(toEmail) || !toEmail.matches(Constants.EMAIL_REGEX)) {
             throw new IllegalArgumentException("email is invalid");
         }
+        logger.info("email validation success : {}", toEmail);
     }
 
     public void verificationCodeValidation(User user, String verificationCode) {
@@ -139,5 +144,7 @@ public class Validation {
         if (!StringUtils.hasText(verificationCode) || !user.getAccountStatus().getVerificationCode().equals(verificationCode)) {
             throw new IllegalArgumentException("Verification code is invalid");
         }
+
+        logger.info("verification code validation success : {}", verificationCode);
     }
 }

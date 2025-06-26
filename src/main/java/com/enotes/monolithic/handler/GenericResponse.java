@@ -8,13 +8,11 @@ import org.springframework.util.ObjectUtils;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 @Builder
 public class GenericResponse {
-
 	private HttpStatus responseStatus;
 
 	private String status; // success , failed

@@ -5,6 +5,8 @@ import com.enotes.monolithic.dto.CategoryResponse;
 import com.enotes.monolithic.service.CategoryService;
 import com.enotes.monolithic.util.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +17,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/v1/category")
 public class CategoryControllerV1 {
+    private static final Logger logger = LoggerFactory.getLogger(CategoryControllerV1.class);
 
     @Autowired
     private CategoryService categoryService;
@@ -26,7 +28,7 @@ public class CategoryControllerV1 {
     @PostMapping("/save")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> saveCategory(@RequestBody CategoryDto categoryDto) {
-
+        logger.info("Received request to save category : {}", categoryDto);
         Boolean saveCategory = categoryService.saveCategory(categoryDto);
         if (saveCategory) {
             return CommonUtil.createBuildResponseMessage("saved success", HttpStatus.CREATED);
@@ -38,6 +40,7 @@ public class CategoryControllerV1 {
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllCategory() {
+        logger.info("Received request to get all category");
         List<CategoryDto> allCategory = categoryService.getAllCategory();
         if (CollectionUtils.isEmpty(allCategory)) {
             return ResponseEntity.noContent().build();
@@ -49,7 +52,7 @@ public class CategoryControllerV1 {
     @GetMapping("/active")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getActiveCategory() {
-
+        logger.info("Received request to get active category");
         List<CategoryResponse> allCategory = categoryService.getActiveCategory();
         if (CollectionUtils.isEmpty(allCategory)) {
             return ResponseEntity.noContent().build();
@@ -61,7 +64,7 @@ public class CategoryControllerV1 {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getCategortDetailsById(@PathVariable Integer id) throws Exception {
-
+        logger.info("Received request to get category by id : {}", id);
         CategoryDto categoryDto = categoryService.getCategoryById(id);
         if (ObjectUtils.isEmpty(categoryDto)) {
             return CommonUtil.createErrorResponseMessage("Internal Server Error", HttpStatus.NOT_FOUND);
@@ -72,6 +75,7 @@ public class CategoryControllerV1 {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteCategoryById(@PathVariable Integer id) {
+        logger.info("Received request to delete category by id : {}", id);
         Boolean deleted = categoryService.deleteCategory(id);
         if (deleted) {
             return CommonUtil.createBuildResponse("Category deleted success", HttpStatus.OK);

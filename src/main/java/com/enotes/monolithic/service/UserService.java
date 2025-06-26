@@ -3,7 +3,7 @@ package com.enotes.monolithic.service;
 import com.enotes.monolithic.dto.PasswordChngRequest;
 
 public interface UserService {
-    public void resetPassword(PasswordChngRequest passwordChngRequest);
+    public void changePassword(PasswordChngRequest passwordChngRequest);
 
     public void resetPassword(Integer userId, String newPassword) throws Exception;
 

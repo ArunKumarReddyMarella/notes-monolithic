@@ -7,6 +7,8 @@ import com.enotes.monolithic.service.EmailService;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -16,8 +18,8 @@ import org.thymeleaf.context.Context;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class EmailServiceImpl implements EmailService {
+    private static final Logger log = LoggerFactory.getLogger(EmailServiceImpl.class);
     
     private final JavaMailSender javaMailSender;
     private final TemplateEngine templateEngine;
@@ -48,7 +50,6 @@ public class EmailServiceImpl implements EmailService {
             javaMailSender.send(message);
             log.info("Email sent successfully to: {}", emailRequest.getTo());
         } catch (Exception e) {
-            log.error("Failed to send email to: {}", emailRequest.getTo(), e);
             throw new EmailException("Failed to send email: " + e.getMessage());
         }
     }
@@ -76,7 +77,6 @@ public class EmailServiceImpl implements EmailService {
             javaMailSender.send(message);
             log.info("Email sent successfully to: {}", user.getEmail());
         } catch (Exception e) {
-            log.error("Failed to send email to: {}", user.getEmail(), e);
             throw new EmailException("Failed to send email: " + e.getMessage());
         }
     }

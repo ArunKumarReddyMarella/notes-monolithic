@@ -4,10 +4,9 @@ import lombok.*;
 
 import java.util.List;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 @Builder
 public class UserResponse {
 
@@ -25,20 +24,18 @@ public class UserResponse {
 
 	private List<RoleDto> roles;
 
+	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
-	@Getter
-	@Setter
 	@Builder
 	public static class RoleDto {
 		private Integer id;
 		private String name;
 	}
 
+	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
-	@Getter
-	@Setter
 	@Builder
 	public static class StatusDto {
 		private Integer id;

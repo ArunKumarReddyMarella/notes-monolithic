@@ -2,8 +2,7 @@ package com.enotes.monolithic.dto;
 
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

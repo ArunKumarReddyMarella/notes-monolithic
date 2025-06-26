@@ -9,6 +9,8 @@ import com.enotes.monolithic.service.TodoService;
 import com.enotes.monolithic.util.CommonUtil;
 import com.enotes.monolithic.util.Validation;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -17,6 +19,7 @@ import java.util.List;
 
 @Service
 public class TodoServiceImpl implements TodoService {
+	private static final Logger logger = LoggerFactory.getLogger(TodoServiceImpl.class);
 
 	@Autowired
 	private TodoRepository todoRepo;
@@ -61,6 +64,7 @@ public class TodoServiceImpl implements TodoService {
 						.name(st.getName())
 						.build();
 				todoDto.setStatus(statusDto);
+				logger.info("Todo Status set successfully for todo : {}", todoDto);
 			}
 		}
 		

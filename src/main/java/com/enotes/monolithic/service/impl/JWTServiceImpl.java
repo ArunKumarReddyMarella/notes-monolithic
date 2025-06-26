@@ -10,6 +10,8 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,7 @@ import java.util.Map;
 
 @Service
 public class JWTServiceImpl implements JWTService {
+    private static final Logger logger = LoggerFactory.getLogger(JWTServiceImpl.class);
 
     private String SECRET_KEY = "DefaultSecretKey";
 
@@ -33,7 +36,6 @@ public class JWTServiceImpl implements JWTService {
             SecretKey secretKey = keyGenerator.generateKey();
             SECRET_KEY = Base64.getEncoder().encodeToString(secretKey.getEncoded());
         } catch (Exception e) {
-//            log.error("JWTServiceImpl :: JWTServiceImpl ::", e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -50,6 +52,7 @@ public class JWTServiceImpl implements JWTService {
         claims.put("AccountStatus", user.getAccountStatus().getIsActive());
 
         long EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 1 day
+        logger.info("Token generated for user: {}", user.getEmail());
         return Jwts.builder()
                 .claims().add(claims)
                 .subject(user.getEmail())
@@ -63,26 +66,31 @@ public class JWTServiceImpl implements JWTService {
     @Override
     public String extractUsername(String token) {
         Claims claims = extractAllClaims(token);
+        logger.info("Username extracted from token: {}", claims.getSubject());
         return claims.getSubject();
     }
 
     @Override
     public Boolean extractAccountStatus(String token) {
         Claims claims = extractAllClaims(token);
+        logger.info("Account Status extracted from token: {}", claims.get("AccountStatus"));
         return (Boolean)claims.get("AccountStatus");
     }
 
     @Override
     public String extractRole(String token) {
         Claims claims = extractAllClaims(token);
+        logger.info("Roles extracted from token: {}", claims.get("roles"));
         return claims.get("roles").toString();
     }
 
     private Claims extractAllClaims(String token) {
         try {
-            return Jwts.parser()
+            Claims claims = Jwts.parser()
                     .verifyWith(decryptKey(SECRET_KEY)).build()
                     .parseSignedClaims(token).getPayload();
+            logger.info("Claims extracted from token: {}", claims);
+            return claims;
         } catch (ExpiredJwtException e) {
             throw new JwtTokenExpiredException("Token Expired");
         }

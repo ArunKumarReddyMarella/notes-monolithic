@@ -4,11 +4,10 @@ import lombok.*;
 
 import java.util.Date;
 
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 public class TodoDto {
 
 	private Integer id;
@@ -25,11 +24,10 @@ public class TodoDto {
 
 	private Date updatedOn;
 
+	@Data
 	@Builder
 	@AllArgsConstructor
 	@NoArgsConstructor
-	@Getter
-	@Setter
 	public static class StatusDto {
 		private Integer id;
 		private String name;

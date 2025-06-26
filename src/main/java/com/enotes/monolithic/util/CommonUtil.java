@@ -5,11 +5,16 @@ import com.enotes.monolithic.entity.User;
 import com.enotes.monolithic.handler.GenericResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+
 public class CommonUtil {
+    private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
+
 
     private static final String SUCCESS = "success";
     private static final String FAILED = "failed";
@@ -18,9 +23,9 @@ public class CommonUtil {
     }
 
     public static ResponseEntity<?> createBuildResponse(Object data, HttpStatus status) {
-
         GenericResponse response = GenericResponse.builder().responseStatus(status).status(SUCCESS).message(SUCCESS)
                 .data(data).build();
+        logger.info("Response : {}", response);
         return response.create();
     }
 
@@ -28,6 +33,7 @@ public class CommonUtil {
 
         GenericResponse response = GenericResponse.builder().responseStatus(status).status(SUCCESS).message(message)
                 .build();
+        logger.info("Response : {}", response);
         return response.create();
     }
 
@@ -35,6 +41,7 @@ public class CommonUtil {
 
         GenericResponse response = GenericResponse.builder().responseStatus(status).status(FAILED).message(FAILED)
                 .data(data).build();
+        logger.error("Response : {}", response);
         return response.create();
     }
 
@@ -42,6 +49,7 @@ public class CommonUtil {
 
         GenericResponse response = GenericResponse.builder().responseStatus(status).status(FAILED).message(message)
                 .build();
+        logger.error("Response : {}", response);
         return response.create();
     }
 
@@ -72,6 +80,7 @@ public class CommonUtil {
 
     public static User getLoggedInUser() {
         CustomUserDetails loggedInUser = (CustomUserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        logger.info("User : {}", loggedInUser);
         return loggedInUser.getUser();
     }
 

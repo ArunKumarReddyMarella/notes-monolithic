@@ -13,6 +13,7 @@ import com.enotes.monolithic.service.JWTService;
 import com.enotes.monolithic.service.AuthService;
 import com.enotes.monolithic.util.Validation;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,6 +27,7 @@ import java.util.UUID;
 
 @Service
 public class AuthServiceImpl implements AuthService {
+    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(AuthServiceImpl.class);
 
     @Autowired
     private UserRepository userRepo;
@@ -97,6 +99,7 @@ public class AuthServiceImpl implements AuthService {
     private void setVerifiedAccountStatus(User user) {
         user.getAccountStatus().setIsActive(true);
         user.getAccountStatus().setVerificationCode(null);
+        logger.info("Verified account for user : {}", user.getEmail());
     }
 
     private void setDefaultAccountStatus(User user) {
@@ -105,12 +108,14 @@ public class AuthServiceImpl implements AuthService {
                 .verificationCode(UUID.randomUUID().toString())
                 .build();
         user.setAccountStatus(accountStatus);
+        logger.info("Created account status for user : {}", user.getEmail());
     }
 
     private void setRole(UserRequest userRequest, User user) {
         List<Integer> reqRoleId = userRequest.getRoles().stream().map(UserRequest.RoleDto::getId).toList();
         List<Role> roles = roleRepo.findAllById(reqRoleId);
         user.setRoles(roles);
+        logger.info("Assigned roles : {} to user : {}", roles, user.getEmail());
     }
 
     private void sendRegistrationEmail(User user, String url) {

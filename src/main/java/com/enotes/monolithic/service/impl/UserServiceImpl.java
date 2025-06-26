@@ -1,5 +1,6 @@
 package com.enotes.monolithic.service.impl;
 
+import com.enotes.monolithic.config.LoggingUtil;
 import com.enotes.monolithic.dto.PasswordChngRequest;
 import com.enotes.monolithic.entity.User;
 import com.enotes.monolithic.exception.ResourceNotFoundException;
@@ -7,6 +8,7 @@ import com.enotes.monolithic.repository.UserRepository;
 import com.enotes.monolithic.service.EmailService;
 import com.enotes.monolithic.service.UserService;
 import com.enotes.monolithic.util.CommonUtil;
+import com.enotes.monolithic.util.Validation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,10 +24,14 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private EmailService emailService;
     @Autowired
+    private Validation validation;
+    @Autowired
+    private LoggingUtil loggerUtil;
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public void resetPassword(PasswordChngRequest passwordChngRequest) {
+    public void changePassword(PasswordChngRequest passwordChngRequest) {
         User user = CommonUtil.getLoggedInUser();
         String currentPassword = passwordChngRequest.getCurrentPassword();
         String newPassword = passwordChngRequest.getNewPassword();
@@ -63,10 +69,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public void verifyResetPasswordCode(Integer userId, String code) throws Exception {
         User user = userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        verificationCodeValidation(user.getAccountStatus().getResetPasswordCode(), code);
+        resetCodeValidation(user.getAccountStatus().getResetPasswordCode(), code);
     }
 
-    private void verificationCodeValidation(String existingCode, String code) {
+    private void resetCodeValidation(String existingCode, String code) {
         if(!StringUtils.hasText(existingCode)) {
             throw new IllegalArgumentException("Reset password code not found or already used");
         }
