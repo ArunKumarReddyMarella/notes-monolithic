@@ -1,22 +1,17 @@
 package com.enotes.monolithic.service.impl;
 
-import com.enotes.monolithic.dto.EmailRequest;
-import com.enotes.monolithic.dto.UserDto;
-import com.enotes.monolithic.entity.AccountStatus;
-import com.enotes.monolithic.entity.Role;
+import com.enotes.monolithic.dto.PasswordChngRequest;
 import com.enotes.monolithic.entity.User;
 import com.enotes.monolithic.exception.ResourceNotFoundException;
-import com.enotes.monolithic.repository.RoleRepository;
 import com.enotes.monolithic.repository.UserRepository;
+import com.enotes.monolithic.service.EmailService;
 import com.enotes.monolithic.service.UserService;
-
-import com.enotes.monolithic.util.Validation;
-import org.modelmapper.ModelMapper;
+import com.enotes.monolithic.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,76 +19,59 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepo;
-
-    @Autowired
-    private RoleRepository roleRepo;
-
-    @Autowired
-    private Validation validation;
-
-    @Autowired
-    private ModelMapper mapper;
-
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
-    public Boolean register(UserDto userDto, String url) {
-
-        validation.userValidation(userDto);
-        User user = mapper.map(userDto, User.class);
-
-        setRole(userDto, user);
-        setDefaultAccountStatus(user);
-
-        User savedUser = userRepo.save(user);
-        if (!ObjectUtils.isEmpty(savedUser)) {
-            sendRegistrationEmail(savedUser, url);
-            return true;
+    public void resetPassword(PasswordChngRequest passwordChngRequest) {
+        User user = CommonUtil.getLoggedInUser();
+        String currentPassword = passwordChngRequest.getCurrentPassword();
+        String newPassword = passwordChngRequest.getNewPassword();
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect");
         }
-        return false;
-    }
-
-    @Override
-    public void verifyUser(String userId, String verificationCode) throws Exception {
-        User user = userRepo.findById(Integer.parseInt(userId))
-                .orElseThrow(() -> new ResourceNotFoundException("User Not found & Id invalid"));
-
-        validation.verificationCodeValidation(user,verificationCode);
-
-        setVerifiedAccountStatus(user);
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepo.save(user);
     }
 
-    private void setVerifiedAccountStatus(User user) {
-        user.getAccountStatus().setIsActive(true);
-        user.getAccountStatus().setVerificationCode(null);
+    @Override
+    public void resetPassword(Integer userId, String newPassword) throws Exception {
+        User user = userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        if (user.getAccountStatus().getResetPasswordCode() == null) {
+            throw new IllegalArgumentException("Reset password code not found or already used");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.getAccountStatus().setResetPasswordCode(null);
+        userRepo.save(user);
     }
 
-    private void setDefaultAccountStatus(User user) {
-        AccountStatus accountStatus = AccountStatus.builder()
-                .isActive(false)
-                .verificationCode(UUID.randomUUID().toString())
-                .build();
-        user.setAccountStatus(accountStatus);
+    @Override
+    public void sendEmailForResetPassword(String email, String baseUrl) throws Exception {
+        User user = userRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // Generate unique reset password token
+        String resetPasswordCode = UUID.randomUUID().toString();
+        user.getAccountStatus().setResetPasswordCode(resetPasswordCode);
+        User updatedUser = userRepo.save(user);
+
+        emailService.sendResetPasswordEmail(updatedUser,baseUrl);
+
     }
 
-    private void setRole(UserDto userDto, User user) {
-        List<Integer> reqRoleId = userDto.getRoles().stream().map(UserDto.RoleDto::getId).toList();
-        List<Role> roles = roleRepo.findAllById(reqRoleId);
-        user.setRoles(roles);
+    @Override
+    public void verifyResetPasswordCode(Integer userId, String code) throws Exception {
+        User user = userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        verificationCodeValidation(user.getAccountStatus().getResetPasswordCode(), code);
     }
 
-    private void sendRegistrationEmail(User user, String url) {
-        validation.emailValidation(user.getEmail());
-
-        EmailRequest emailRequest = EmailRequest.builder()
-                .to(user.getEmail())
-                .title("Account Creating Confirmation")
-                .subject("Welcome to Enotes!")
-                .message("Hi " + user.getFirstName() + ", welcome to Enotes!")
-                .build();
-
-        emailService.sendEmail(user, emailRequest, url);
+    private void verificationCodeValidation(String existingCode, String code) {
+        if(!StringUtils.hasText(existingCode)) {
+            throw new IllegalArgumentException("Reset password code not found or already used");
+        }
+        if (!existingCode.equals(code)) {
+            throw new IllegalArgumentException("Invalid verification code");
+        }
     }
 }

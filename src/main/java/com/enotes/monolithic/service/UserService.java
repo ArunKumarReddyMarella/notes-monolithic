@@ -1,11 +1,13 @@
 package com.enotes.monolithic.service;
 
-import com.enotes.monolithic.dto.UserDto;
-import com.enotes.monolithic.exception.ResourceNotFoundException;
+import com.enotes.monolithic.dto.PasswordChngRequest;
 
 public interface UserService {
+    public void resetPassword(PasswordChngRequest passwordChngRequest);
 
-	public Boolean register(UserDto userDto, String url);
+    public void resetPassword(Integer userId, String newPassword) throws Exception;
 
-    void verifyUser(String userId, String verificationCode) throws Exception;
+    void sendEmailForResetPassword(String email,String baseUrl) throws Exception;
+
+    void verifyResetPasswordCode(Integer userId,String code) throws Exception;
 }

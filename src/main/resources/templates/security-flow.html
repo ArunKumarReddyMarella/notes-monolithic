@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Security Flow Visualization</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 20px;
+            padding-bottom: 40px;
+        }
+        .flow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .flow-step {
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .flow-step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .flow-arrow {
+            text-align: center;
+            font-size: 24px;
+            color: #6c757d;
+            margin: 10px 0;
+        }
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            background-color: #0d6efd;
+            color: white;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .code-block {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="container flow-container">
+    <header class="text-center mb-5">
+        <h1 class="display-4">Spring Security Authentication Flow</h1>
+        <p class="lead">JWT-based Authentication and Authorization in eNotes Application</p>
+    </header>
+
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <!-- Step 1 -->
+            <div class="flow-step bg-light">
+                <h3><span class="step-number">1</span>User Authentication Request</h3>
+                <p>User sends login credentials to the authentication endpoint</p>
+                <div class="code-block">
+                    POST /api/v1/auth/user/login<br>
+                    {<br>
+                    &nbsp;&nbsp;"email": "user@example.com",<br>
+                    &nbsp;&nbsp;"password": "userPassword"<br>
+                    }
+                </div>
+            </div>
+
+            <div class="flow-arrow">
+                <i class="bi bi-arrow-down"></i>↓
+            </div>
+
+            <!-- Step 2 -->
+            <div class="flow-step bg-light">
+                <h3><span class="step-number">2</span>Authentication Processing</h3>
+                <p>AuthController passes credentials to Authentication Manager</p>
+                <div class="code-block">
+                    authenticationManager.authenticate(<br>
+                    &nbsp;&nbsp;new UsernamePasswordAuthenticationToken(email, password)<br>
+                    );
+                </div>
+            </div>
+
+            <div class="flow-arrow">
+                <i class="bi bi-arrow-down"></i>↓
+            </div>
+
+            <!-- Step 3 -->
+            <div class="flow-step bg-light">
+                <h3><span class="step-number">3</span>UserDetailsService</h3>
+                <p>Loads user details from database and validates credentials</p>
+                <div class="code-block">
+                    @Override<br>
+                    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {<br>
+                    &nbsp;&nbsp;User user = userRepository.findByEmail(username)<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;.orElseThrow(() -> new UsernameNotFoundException("User not found"));<br>
+                    &nbsp;&nbsp;return new UserDetailsImpl(user);<br>
+                    }
+                </div>
+            </div>
+
+            <div class="flow-arrow">
+                <i class="bi bi-arrow-down"></i>↓
+            </div>
+
+            <!-- Step 4 -->
+            <div class="flow-step bg-light">
+                <h3><span class="step-number">4</span>JWT Token Generation</h3>
+                <p>Upon successful authentication, a JWT token is generated</p>
+                <div class="code-block">
+                    String token = jwtService.generateToken(user.getEmail());<br>
+                    // JWT contains: username, roles, issuedAt, expiration
+                </div>
+            </div>
+
+            <div class="flow-arrow">
+                <i class="bi bi-arrow-down"></i>↓
+            </div>
+
+            <!-- Step 5 -->
+            <div class="flow-step bg-light">
+                <h3><span class="step-number">5</span>Response with Token</h3>
+                <p>Server responds with JWT token to the client</p>
+                <div class="code-block">
+                    {<br>
+                    &nbsp;&nbsp;"status": "success",<br>
+                    &nbsp;&nbsp;"message": "Login successful",<br>
+                    &nbsp;&nbsp;"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."<br>
+                    }
+                </div>
+            </div>
+
+            <div class="flow-arrow">
+                <i class="bi bi-arrow-down"></i>↓
+            </div>
+
+            <!-- Step 6 -->
+            <div class="flow-step bg-light">
+                <h3><span class="step-number">6</span>Subsequent Requests</h3>
+                <p>Client includes JWT token in Authorization header</p>
+                <div class="code-block">
+                    GET /api/v1/category/active<br>
+                    Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                </div>
+            </div>
+
+            <div class="flow-arrow">
+                <i class="bi bi-arrow-down"></i>↓
+            </div>
+
+            <!-- Step 7 -->
+            <div class="flow-step bg-light">
+                <h3><span class="step-number">7</span>JWT Filter Processing</h3>
+                <p>JWTFilter extracts and validates token</p>
+                <div class="code-block">
+                    @Override<br>
+                    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {<br>
+                    &nbsp;&nbsp;// Extract token from header<br>
+                    &nbsp;&nbsp;String token = extractTokenFromHeader(request);<br>
+                    &nbsp;&nbsp;// Validate token and set authentication<br>
+                    &nbsp;&nbsp;if (token != null && jwtService.validateToken(token)) {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;// Set SecurityContext with authentication<br>
+                    &nbsp;&nbsp;}<br>
+                    }
+                </div>
+            </div>
+
+            <div class="flow-arrow">
+                <i class="bi bi-arrow-down"></i>↓
+            </div>
+
+            <!-- Step 8 -->
+            <div class="flow-step bg-light">
+                <h3><span class="step-number">8</span>Access Protected Resources</h3>
+                <p>If authenticated and authorized, access is granted to the requested resource</p>
+                <div class="code-block">
+                    // Example of an endpoint with role-based authorization<br>
+                    @GetMapping("/active")<br>
+                    @PreAuthorize("hasRole('USER')")<br>
+                    public ResponseEntity&lt;List&lt;CategoryDto&gt;&gt; getActiveCategory() {<br>
+                    &nbsp;&nbsp;// Return active categories<br>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5 text-center">
+        <h3>Security Configuration</h3>
+        <div class="row mt-4">
+            <div class="col-md-10 offset-md-1">
+                <div class="flow-step bg-light">
+                    <h4>SecurityFilterChain Configuration</h4>
+                    <div class="code-block">
+                        @Bean<br>
+                        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {<br>
+                        &nbsp;&nbsp;http<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;.csrf(AbstractHttpConfigurer::disable)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;.authorizeHttpRequests(auth -> auth<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.requestMatchers("/api/v1/auth/**").permitAll()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.anyRequest().authenticated()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;.httpBasic(Customizer.withDefaults())<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;.sessionManagement(session -> session<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.sessionCreationPolicy(SessionCreationPolicy.STATELESS)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);<br>
+                        &nbsp;&nbsp;return http.build();<br>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
