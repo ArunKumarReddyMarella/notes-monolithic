@@ -4,6 +4,16 @@ spring:
   profiles:
     active: dev
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+        exclude: beans,loggers
+  endpoint:
+    shutdown:
+      enabled: false
+
 ---
 # dev config
 spring:
