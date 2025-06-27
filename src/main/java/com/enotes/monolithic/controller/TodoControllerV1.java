@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.enotes.monolithic.util.Constants.ROLE_ADMIN_USER;
+import static com.enotes.monolithic.util.Constants.ROLE_USER;
+
 @RestController
 @RequestMapping("/api/v1/todo")
 public class TodoControllerV1 {
@@ -23,7 +26,7 @@ public class TodoControllerV1 {
     private TodoService todoService;
 
     @PostMapping("/")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize(ROLE_ADMIN_USER)
     public ResponseEntity<?> saveTodo(@RequestBody TodoDto todo) throws Exception {
         logger.info("Request received to save todo: {}", todo);
         Boolean saveTodo = todoService.saveTodo(todo);
@@ -35,7 +38,7 @@ public class TodoControllerV1 {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize(ROLE_USER)
     public ResponseEntity<?> getTodoById(@PathVariable Integer id) throws Exception {
         logger.info("Request received to get todo by id: {}", id);
         TodoDto todo = todoService.getTodoById(id);
@@ -43,7 +46,7 @@ public class TodoControllerV1 {
     }
 
     @GetMapping("/list")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize(ROLE_USER)
     public ResponseEntity<?> getAllTodoByUser() throws Exception {
         logger.info("Request received to get all todo by user");
         List<TodoDto> todoList = todoService.getTodoByUser();

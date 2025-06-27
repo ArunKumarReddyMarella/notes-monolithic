@@ -11,7 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import static com.enotes.monolithic.util.Constants.ROLE_ADMIN_USER;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -25,6 +28,7 @@ public class UserControllerV1 {
     private UserService userService;
 
     @GetMapping("/profile")
+    @PreAuthorize(ROLE_ADMIN_USER)
     public ResponseEntity<?> getProfile() {
         logger.info("Request to get Logged in user profile");
         User loggedUser = CommonUtil.getLoggedInUser();
@@ -33,6 +37,7 @@ public class UserControllerV1 {
     }
 
     @PostMapping("/change-password")
+    @PreAuthorize(ROLE_ADMIN_USER)
     public ResponseEntity<?> changePassword(@RequestBody PasswordChngRequest passwordChngRequest) {
         logger.info("Request to change password");
         userService.changePassword(passwordChngRequest);
