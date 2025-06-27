@@ -6,6 +6,10 @@ import com.enotes.monolithic.dto.UserRequest;
 import com.enotes.monolithic.service.AuthService;
 import com.enotes.monolithic.service.UserService;
 import com.enotes.monolithic.util.CommonUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +20,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+@Tag(name = "Authentication", description = "User Authentication APIs")
 @RestController
 @RequestMapping("/api/v1/auth/user")
 public class AuthControllerV1 {
@@ -27,9 +32,13 @@ public class AuthControllerV1 {
     @Autowired
     private UserService userService;
 
+    @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Register Success"),
+            @ApiResponse(responseCode = "500", description = "Internal Server error"),
+            @ApiResponse(responseCode = "400", description = "Bad Request") })
+    @Operation(summary = "User Register Endpoint", tags = { "Authentication" })
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserRequest userRequest, HttpServletRequest request) throws Exception {
-        logger.info("Received user request for Registration : {}", userRequest.toString());
+        logger.info("Received user request for Registration : {}", userRequest);
         String url = CommonUtil.getUrl(request);
         Boolean register = authService.register(userRequest, url);
         if (Boolean.TRUE.equals(register)) {
@@ -44,6 +53,8 @@ public class AuthControllerV1 {
 //		return CommonUtil.createBuildResponseMessage("Verification success", HttpStatus.OK);
 //	}
 
+    @Operation(summary = "Verification user account", tags = {
+            "Home" }, description = "User Account verification after register account")
     @GetMapping("/verify-account")
     public ModelAndView verifyUser(@RequestParam String userId, @RequestParam String verificationCode) throws Exception {
         logger.info("Received user request for Verification : {}", userId);
@@ -56,6 +67,7 @@ public class AuthControllerV1 {
         }
     }
 
+    @Operation(summary = "User Login Endpoint", tags = { "Authentication", "Home"})
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) throws Exception {
         logger.info("Received user request for Login : {}", loginRequest);
@@ -66,6 +78,8 @@ public class AuthControllerV1 {
         return CommonUtil.createBuildResponse(loginResponse, HttpStatus.OK);
     }
 
+    @Operation(summary = "Send Email for Password Reset", tags = {
+            "Home" }, description = "User Can send Email for password reset")
     @GetMapping("/send-reset-password-email")
     public ResponseEntity<?> sendEmailForResetPassword(@RequestParam String email, HttpServletRequest request) throws Exception {
         logger.info("Received user request for Reset Password : {}", email);
@@ -74,6 +88,8 @@ public class AuthControllerV1 {
         return CommonUtil.createBuildResponseMessage("Email sent successfully", HttpStatus.OK);
     }
 
+    @Operation(summary = "Verification password link", tags = {
+            "Home" }, description = "User verification password link")
     @GetMapping("/verify-reset-password-code")
     public ModelAndView verifyResetPassword(@RequestParam Integer userId, @RequestParam String code, HttpServletRequest request) throws Exception {
         logger.info("Received user request for Verify Reset Password : {}", userId);
@@ -92,6 +108,7 @@ public class AuthControllerV1 {
         }
     }
 
+    @Operation(summary = "Reset Password", tags = { "Home" }, description = "User Can changes Password")
     @GetMapping("/reset-password/{userId}")
     public ModelAndView resetPassword(@PathVariable Integer userId, @RequestParam String newPassword) throws Exception {
         logger.info("Received user request for Reset Password : {}", userId);

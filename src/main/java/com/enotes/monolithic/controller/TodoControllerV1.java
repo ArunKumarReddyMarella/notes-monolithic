@@ -3,6 +3,8 @@ package com.enotes.monolithic.controller;
 import com.enotes.monolithic.dto.TodoDto;
 import com.enotes.monolithic.service.TodoService;
 import com.enotes.monolithic.util.CommonUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import java.util.List;
 import static com.enotes.monolithic.util.Constants.ROLE_ADMIN_USER;
 import static com.enotes.monolithic.util.Constants.ROLE_USER;
 
+@Tag(name = "Todo", description = "All the Todo Operation APIs")
 @RestController
 @RequestMapping("/api/v1/todo")
 public class TodoControllerV1 {
@@ -25,6 +28,7 @@ public class TodoControllerV1 {
     @Autowired
     private TodoService todoService;
 
+    @Operation(summary = "Save Todo", tags = { "Todo" }, description = "Save Todo")
     @PostMapping("/")
     @PreAuthorize(ROLE_ADMIN_USER)
     public ResponseEntity<?> saveTodo(@RequestBody TodoDto todo) throws Exception {
@@ -37,6 +41,7 @@ public class TodoControllerV1 {
         }
     }
 
+    @Operation(summary = "Get Todo", tags = { "Todo" }, description = "Get Todo")
     @GetMapping("/{id}")
     @PreAuthorize(ROLE_USER)
     public ResponseEntity<?> getTodoById(@PathVariable Integer id) throws Exception {
@@ -45,6 +50,7 @@ public class TodoControllerV1 {
         return CommonUtil.createBuildResponse(todo, HttpStatus.OK);
     }
 
+    @Operation(summary = "Get All Todo By User", tags = { "Todo" }, description = "Get All Todo By User")
     @GetMapping("/list")
     @PreAuthorize(ROLE_USER)
     public ResponseEntity<?> getAllTodoByUser() throws Exception {

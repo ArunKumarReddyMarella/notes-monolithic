@@ -5,6 +5,8 @@ import com.enotes.monolithic.dto.UserResponse;
 import com.enotes.monolithic.entity.User;
 import com.enotes.monolithic.service.UserService;
 import com.enotes.monolithic.util.CommonUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import static com.enotes.monolithic.util.Constants.ROLE_ADMIN_USER;
 
+@Tag(name = "User", description = "User Operation APIs")
 @RestController
 @RequestMapping("/api/v1/user")
 public class UserControllerV1 {
@@ -27,6 +30,7 @@ public class UserControllerV1 {
     @Autowired
     private UserService userService;
 
+    @Operation(summary = "Get User Profile", tags = { "User" }, description = "Get User Profile")
     @GetMapping("/profile")
     @PreAuthorize(ROLE_ADMIN_USER)
     public ResponseEntity<?> getProfile() {
@@ -36,6 +40,8 @@ public class UserControllerV1 {
         return CommonUtil.createBuildResponse(userResponse, HttpStatus.OK);
     }
 
+    @Operation(summary = "User Account Password Change", tags = {
+            "User" }, description = "User Account Password Change")
     @PostMapping("/change-password")
     @PreAuthorize(ROLE_ADMIN_USER)
     public ResponseEntity<?> changePassword(@RequestBody PasswordChngRequest passwordChngRequest) {

@@ -4,6 +4,8 @@ import com.enotes.monolithic.dto.CategoryDto;
 import com.enotes.monolithic.dto.CategoryResponse;
 import com.enotes.monolithic.service.CategoryService;
 import com.enotes.monolithic.util.CommonUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import java.util.List;
 
 import static com.enotes.monolithic.util.Constants.*;
 
+@Tag(name = "Category", description = "All the Category operation APIs")
 @RestController
 @RequestMapping("/api/v1/category")
 public class CategoryControllerV1 {
@@ -26,6 +29,7 @@ public class CategoryControllerV1 {
     @Autowired
     private CategoryService categoryService;
 
+    @Operation(summary = "Save Category", tags = { "Category" }, description = "Admin Save Category")
     @PostMapping("/save")
     @PreAuthorize(ROLE_ADMIN)
     public ResponseEntity<?> saveCategory(@RequestBody CategoryDto categoryDto) {
@@ -38,6 +42,7 @@ public class CategoryControllerV1 {
         }
     }
 
+    @Operation(summary = "Get All Category", tags = { "Category" }, description = "Admin Get All Category")
     @GetMapping("/")
     @PreAuthorize(ROLE_ADMIN)
     public ResponseEntity<?> getAllCategory() {
@@ -50,6 +55,7 @@ public class CategoryControllerV1 {
         }
     }
 
+    @Operation(summary = "Get Active Category", tags = { "Category" }, description = "Admin,User Get Active Category")
     @GetMapping("/active")
     @PreAuthorize(ROLE_ADMIN_USER)
     public ResponseEntity<?> getActiveCategory() {
@@ -62,6 +68,7 @@ public class CategoryControllerV1 {
         }
     }
 
+    @Operation(summary = "Get Category By id ", tags = { "Category" }, description = "Admin Get Category Deatils")
     @GetMapping("/{id}")
     @PreAuthorize(ROLE_USER)
     public ResponseEntity<?> getCategortDetailsById(@PathVariable Integer id) throws Exception {
@@ -73,6 +80,7 @@ public class CategoryControllerV1 {
         return CommonUtil.createBuildResponse(categoryDto, HttpStatus.OK);
     }
 
+    @Operation(summary = "Delete Category", tags = { "Category" }, description = "Admin Delete Category")
     @DeleteMapping("/{id}")
     @PreAuthorize(ROLE_ADMIN)
     public ResponseEntity<?> deleteCategoryById(@PathVariable Integer id) {
