@@ -49,7 +49,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(req -> req.requestMatchers("/api/v1/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/enotes-doc/**", "/enotes-api-doc/**", "/actuator/**").permitAll()
+                .authorizeHttpRequests(req -> req.requestMatchers("/api/v1/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/enotes-doc/**", "/enotes-api-doc/**", "/actuator/**", "api/v1/cache/**").permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
