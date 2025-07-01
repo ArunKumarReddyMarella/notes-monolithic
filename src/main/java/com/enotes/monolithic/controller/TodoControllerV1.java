@@ -19,6 +19,7 @@ import java.util.List;
 import static com.enotes.monolithic.util.Constants.ROLE_ADMIN_USER;
 import static com.enotes.monolithic.util.Constants.ROLE_USER;
 
+@CrossOrigin
 @Tag(name = "Todo", description = "All the Todo Operation APIs")
 @RestController
 @RequestMapping("/api/v1/todo")

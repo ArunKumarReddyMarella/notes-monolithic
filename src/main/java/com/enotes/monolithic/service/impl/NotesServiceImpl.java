@@ -119,9 +119,9 @@ public class NotesServiceImpl implements NotesService {
 			String originalFilename = file.getOriginalFilename();
 			String extension = FilenameUtils.getExtension(originalFilename);
 
-			List<String> extensionAllow = Arrays.asList("pdf", "xlsx", "jpg", "png", "docx");
+			List<String> extensionAllow = Arrays.asList("pdf", "xlsx", "jpg", "png", "docx", "txt");
 			if (!extensionAllow.contains(extension)) {
-				throw new IllegalArgumentException("invalid file format ! Upload only .pdf , .xlsx,.jpg");
+				throw new IllegalArgumentException("invalid file format ! Upload only .pdf , .xlsx,.jpg,.png,.docx,.txt");
 			}
 
 			String rndString = UUID.randomUUID().toString();
@@ -192,7 +192,6 @@ public class NotesServiceImpl implements NotesService {
 	@Override
 	public NotesResponse getAllNotesByUser(Integer pageNo, Integer pageSize) {
 		Integer userId = CommonUtil.getLoggedInUser().getId();
-		// 10 = 5,5 = 2 pages
 		Pageable pageable = PageRequest.of(pageNo, pageSize);
 		Page<Notes> pageNotes = notesRepo.findByCreatedByAndIsDeletedFalse(userId, pageable);
 
@@ -257,9 +256,13 @@ public class NotesServiceImpl implements NotesService {
 
 	@Override
 	public void favoriteNotes(Integer noteId) throws Exception {
-		int userId = 2;
+		int userId = CommonUtil.getLoggedInUser().getId();
 		Notes notes = notesRepo.findById(noteId)
 				.orElseThrow(() -> new ResourceNotFoundException("Notes Not found & Id invalid"));
+		// if note already favorite
+		if (favouriteNoteRepo.findByUserIdAndNoteId(userId, noteId).isPresent()) {
+			throw new ExistDataException("Note already favorite");
+		}
 		FavouriteNote favouriteNote = FavouriteNote.builder().note(notes).userId(userId).build();
 		favouriteNoteRepo.save(favouriteNote);
 	}

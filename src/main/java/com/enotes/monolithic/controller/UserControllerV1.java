@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import static com.enotes.monolithic.util.Constants.ROLE_ADMIN_USER;
 
+@CrossOrigin
 @Tag(name = "User", description = "User Operation APIs")
 @RestController
 @RequestMapping("/api/v1/user")

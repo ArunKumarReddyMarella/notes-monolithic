@@ -20,6 +20,7 @@ import java.util.List;
 
 import static com.enotes.monolithic.util.Constants.*;
 
+@CrossOrigin
 @Tag(name = "Category", description = "All the Category operation APIs")
 @RestController
 @RequestMapping("/api/v1/category")

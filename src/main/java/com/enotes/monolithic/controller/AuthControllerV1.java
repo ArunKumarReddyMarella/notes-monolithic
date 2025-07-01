@@ -20,6 +20,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+@CrossOrigin
 @Tag(name = "Authentication", description = "User Authentication APIs")
 @RestController
 @RequestMapping("/api/v1/auth/user")

@@ -29,6 +29,7 @@ import java.util.List;
 
 import static com.enotes.monolithic.util.Constants.*;
 
+@CrossOrigin
 @Tag(name = "Notes", description = "All the Notes Operation APIs")
 @RestController
 @RequestMapping("/api/v1/notes")

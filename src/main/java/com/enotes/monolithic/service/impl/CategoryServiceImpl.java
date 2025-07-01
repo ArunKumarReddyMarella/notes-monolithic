@@ -40,17 +40,17 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @CacheEvict(value = {"allCategory", "activeCategory"}, allEntries = true)
-    public Boolean saveCategory(CategoryDto categoryDto) {
+    public Boolean  saveCategory(CategoryDto categoryDto) {
 
         // Validation Checking
         validation.categoryValidation(categoryDto);
 
-        // check category exist or not
-        Boolean exist = categoryRepo.existsByName(categoryDto.getName().trim());
-        if (exist) {
-            // throw error
-            throw new ExistDataException("Category already exist");
-        }
+//        // check category exist or not
+//        Boolean exist = categoryRepo.existsByName(categoryDto.getName().trim());
+//        if (exist) {
+//            // throw error
+//            throw new ExistDataException("Category already exist");
+//        }
 
         Category category = mapper.map(categoryDto, Category.class);
 
@@ -82,7 +82,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Cacheable(value = "allCategory")
     public List<CategoryDto> getAllCategory() {
-        List<Category> categories = categoryRepo.findAll();
+        List<Category> categories = categoryRepo.findByIsDeletedFalse();
         return categories.stream().map(cat -> mapper.map(cat, CategoryDto.class)).toList();
     }
 
