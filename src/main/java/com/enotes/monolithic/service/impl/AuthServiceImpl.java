@@ -68,6 +68,7 @@ public class AuthServiceImpl implements AuthService {
             sendRegistrationEmail(savedUser, url);
             return true;
         }
+        logger.error("Failed to register user : {}", user.getEmail());
         return false;
     }
 
@@ -128,6 +129,17 @@ public class AuthServiceImpl implements AuthService {
                 .message("Hi " + user.getFirstName() + ", welcome to Enotes!")
                 .build();
 
-        emailService.sendRegistrationEmail(user, emailRequest, url);
+        emailService.sendRegistrationEmail(user, emailRequest, url)
+                .thenAccept(success -> {
+                    if (Boolean.TRUE.equals(success)) {
+                        logger.info("Email sent successfully to: {}", user.getEmail());
+                    } else {
+                        logger.error("Failed to send email to: {}", user.getEmail());
+                    }
+                })
+                .exceptionally(ex -> {
+                    logger.error("Error sending email to {}: {}", user.getEmail(), ex.getMessage());
+                    return null;
+                });
     }
 }
