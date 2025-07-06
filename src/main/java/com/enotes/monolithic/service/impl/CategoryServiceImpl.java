@@ -46,11 +46,11 @@ public class CategoryServiceImpl implements CategoryService {
         validation.categoryValidation(categoryDto);
 
 //        // check category exist or not
-//        Boolean exist = categoryRepo.existsByName(categoryDto.getName().trim());
-//        if (exist) {
-//            // throw error
-//            throw new ExistDataException("Category already exist");
-//        }
+        Boolean exist = categoryRepo.existsByName(categoryDto.getName().trim());
+        if (exist) {
+            // throw error
+            throw new ExistDataException("Category already exist");
+        }
 
         Category category = mapper.map(categoryDto, Category.class);
 

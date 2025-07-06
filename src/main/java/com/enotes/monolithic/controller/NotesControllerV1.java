@@ -93,7 +93,7 @@ public class NotesControllerV1 {
         return CommonUtil.createBuildResponse(notes, HttpStatus.OK);
     }
 
-    @Operation(summary = "Delete Notes", tags = { "Notes", "User" }, description = "Delete Notes By user")
+    @Operation(summary = "Delete Notes", tags = { "Notes", "User" }, description = "Soft Delete Notes By user")
     @GetMapping("/delete/{id}")
     @PreAuthorize(ROLE_ADMIN)
     public ResponseEntity<?> deleteNotes(@PathVariable Integer id) throws Exception {
@@ -125,7 +125,7 @@ public class NotesControllerV1 {
         return CommonUtil.createBuildResponse(notes, HttpStatus.OK);
     }
 
-    @Operation(summary = "Hard Delete Notes", tags = { "Notes", "User" }, description = "Hard Delete Notes")
+    @Operation(summary = "Hard Delete Notes", tags = { "Notes", "User" }, description = "Permanent Delete Notes")
     @DeleteMapping("/delete/{id}")
     @PreAuthorize(ROLE_ADMIN)
     public ResponseEntity<?> hardDeleteNotes(@PathVariable Integer id) throws Exception {

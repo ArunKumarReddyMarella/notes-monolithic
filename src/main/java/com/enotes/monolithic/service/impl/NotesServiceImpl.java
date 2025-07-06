@@ -3,15 +3,14 @@ package com.enotes.monolithic.service.impl;
 import com.enotes.monolithic.dto.FavouriteNoteDto;
 import com.enotes.monolithic.dto.NotesDto;
 import com.enotes.monolithic.dto.NotesResponse;
-import com.enotes.monolithic.entity.Category;
-import com.enotes.monolithic.entity.FileDetails;
 import com.enotes.monolithic.entity.FavouriteNote;
+import com.enotes.monolithic.entity.FileDetails;
 import com.enotes.monolithic.entity.Notes;
 import com.enotes.monolithic.exception.ExistDataException;
 import com.enotes.monolithic.exception.ResourceNotFoundException;
 import com.enotes.monolithic.repository.CategoryRepository;
-import com.enotes.monolithic.repository.FileRepository;
 import com.enotes.monolithic.repository.FavouriteNoteRepository;
+import com.enotes.monolithic.repository.FileRepository;
 import com.enotes.monolithic.repository.NotesRepository;
 import com.enotes.monolithic.service.NotesService;
 import com.enotes.monolithic.util.CommonUtil;
@@ -63,6 +62,9 @@ public class NotesServiceImpl implements NotesService {
 
 	@Autowired
 	private FileRepository fileRepo;
+
+	@Autowired
+	private S3ServiceImpl s3Service;
 
 	@Override
 	public Boolean saveNotes(String notes, MultipartFile file) throws Exception {
@@ -127,24 +129,17 @@ public class NotesServiceImpl implements NotesService {
 			String rndString = UUID.randomUUID().toString();
 			String uploadfileName = rndString + "." + extension; // sdfsafbhkljsf.pdf
 
-			File saveFile = new File(uploadpath);
-			if (!saveFile.exists()) {
-				saveFile.mkdir();
-				logger.info("directory created");
-			}
-			// path : enotes-monolithic/notes/java.pdf
-			String storePath = uploadpath.concat(uploadfileName);
-
-			// upload file
-			long upload = Files.copy(file.getInputStream(), Paths.get(storePath));
+			String s3FolderPath = "notes/";
+			String storePath = s3FolderPath.concat(uploadfileName);
+			String fileUrl = s3Service.uploadFile(storePath, file);
 			logger.info("file uploaded successfully");
-			if (upload != 0) {
+			if (!ObjectUtils.isEmpty(fileUrl)) {
 				FileDetails fileDtls = new FileDetails();
 				fileDtls.setOriginalFileName(originalFilename);
 				fileDtls.setDisplayFileName(getDisplayName(originalFilename));
 				fileDtls.setUploadFileName(uploadfileName);
 				fileDtls.setFileSize(file.getSize());
-				fileDtls.setPath(storePath);
+				fileDtls.setPath(fileUrl);
 				FileDetails saveFileDtls = fileRepo.save(fileDtls);
 				logger.info("file saved successfully {}", saveFileDtls);
 				return saveFileDtls;
@@ -178,9 +173,7 @@ public class NotesServiceImpl implements NotesService {
 	@Override
 	public byte[] downloadFile(FileDetails fileDetails) throws Exception {
 
-		InputStream io = new FileInputStream(fileDetails.getPath());
-
-		return StreamUtils.copyToByteArray(io);
+		return s3Service.downloadFile(fileDetails.getUploadFileName());
 	}
 
 	@Override
@@ -237,12 +230,18 @@ public class NotesServiceImpl implements NotesService {
 	public void hardDeleteNotes(Integer id) throws Exception {
 		Notes notes = notesRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Notes not found"));
 		if (notes.getIsDeleted()) {
+			deleteFile(notes.getFileDetails().getUploadFileName());
 			notesRepo.delete(notes);
 			logger.warn("Notes hard deleted successfully of id : {}", id);
 		} else {
 			throw new IllegalArgumentException("Sorry You cant hard delete Directly");
 		}
 	}
+
+	private void deleteFile(String path) throws Exception {
+		s3Service.deleteFile(path);
+	}
+
 
 	@Override
 	public void emptyRecycleBin() {

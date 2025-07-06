@@ -33,7 +33,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     @Async("emailTaskExecutor")
     @Retryable(
-            value = {Exception.class},
+            value = {EmailException.class},
             maxAttempts = 3,
             backoff = @Backoff(delay = 1000, multiplier = 2.0)
     )
@@ -68,7 +68,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     @Async("emailTaskExecutor")
     @Retryable(
-            value = {Exception.class},
+            value = {EmailException.class},
             maxAttempts = 3,
             backoff = @Backoff(delay = 1000, multiplier = 2.0)
     )

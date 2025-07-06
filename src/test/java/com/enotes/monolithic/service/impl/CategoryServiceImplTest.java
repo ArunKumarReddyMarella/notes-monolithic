@@ -120,10 +120,10 @@ public class CategoryServiceImplTest {
 
     @Test
     public void testGetAllCategory() {
-        when(categoryRepo.findAll()).thenReturn(categories);
+        when(categoryRepo.findByIsDeletedFalse()).thenReturn(categories);
         List<CategoryDto> allCategory = categoryService.getAllCategory();
 
         assertEquals(allCategory.size(), categories.size());
-        verify(categoryRepo).findAll();
+        verify(categoryRepo).findByIsDeletedFalse();
     }
 }
